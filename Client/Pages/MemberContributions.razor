@@ -1,0 +1,100 @@
+@page "/member-contributions"
+
+@attribute [Authorize(Roles="Admin")]
+
+<PageTitle>MemberContributions</PageTitle>
+<RadzenStack>
+<RadzenRow AlignItems="AlignItems.Center">
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenText Text="Member Contributions" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenSplitButton Icon="get_app" Text="Export" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
+                <RadzenSplitButtonItem Text="CSV" Value="csv" />
+            </RadzenSplitButton>
+            <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+        </RadzenStack>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" />
+<RadzenRow>
+    <RadzenColumn SizeMD=6>
+    <RadzenCard style="height: 100%">
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"  AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true"
+            Data="@memberContributions" Count=count LoadData=@Grid0LoadData  TItem="CDAApp.Server.Models.CdaDB.MemberContribution" RowSelect="@EditRow" >
+            <Columns>
+                
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Property="ContributionID" Title="Contribution I D">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Property="ContributionDate" Title="Contribution Date">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Property="Purpose" Title="Purpose">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Property="Amount" Title="Amount">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Property="Member.FullName" Title="Member">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="memberContribution">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, memberContribution)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </RadzenCard>
+    </RadzenColumn>
+        <RadzenColumn SizeMD=6>
+        <RadzenCard style="height: 100%;margin-top:0px;">
+            <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save MemberContribution</RadzenAlert>
+            <RadzenTemplateForm TItem="CDAApp.Server.Models.CdaDB.MemberContribution" Data="@memberContribution" Visible="@(memberContribution != null)" Submit="@FormSubmit">
+                
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Contribution Date" Component="ContributionDate" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenDatePicker DateFormat="dd/MM/yyyy" style="display: block; width: 100%" @bind-Value="@memberContribution.ContributionDate" Name="ContributionDate" />
+                        <RadzenRequiredValidator Component="ContributionDate" Text="ContributionDate is required" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Purpose" Component="Purpose" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@memberContribution.Purpose" Name="Purpose" />
+                        <RadzenRequiredValidator Component="Purpose" Text="Purpose is required" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Amount" Component="Amount" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@memberContribution.Amount" Name="Amount" />
+                        <RadzenRequiredValidator Component="Amount" Text="Amount is required" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Member" Component="Member" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenDropDown Data="@membersForMemberID" TextProperty="FullName" ValueProperty="MemberID"
+                             Placeholder="Choose Member" style="display: block; width: 100%" @bind-Value="@memberContribution.MemberID" Name="MemberID"
+                             Count=@membersForMemberIDCount LoadData=@membersForMemberIDLoadData />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick" Visible=false />
+                </RadzenStack>
+            </RadzenTemplateForm>
+        </RadzenCard>
+        </RadzenColumn></RadzenRow>
+</RadzenStack>

@@ -1,0 +1,86 @@
+@page "/meeting-attendees"
+
+@attribute [Authorize(Roles="Admin")]
+
+<PageTitle>MeetingAttendees</PageTitle>
+<RadzenStack>
+<RadzenRow AlignItems="AlignItems.Center">
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenText Text="MeetingAttendees" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenSplitButton Icon="get_app" Text="Export" Click="@ExportClick" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <RadzenSplitButtonItem Text="Excel" Value="xlsx" />
+                <RadzenSplitButtonItem Text="CSV" Value="csv" />
+            </RadzenSplitButton>
+            <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+        </RadzenStack>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" />
+<RadzenRow>
+    <RadzenColumn SizeMD=6>
+    <RadzenCard style="height: 100%">
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"  AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true"
+            Data="@meetingAttendees" Count=count LoadData=@Grid0LoadData  TItem="CDAApp.Server.Models.CdaDB.MeetingAttendee" RowSelect="@EditRow" >
+            <Columns>
+               
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MeetingAttendee" Property="AttendeeID" Title="Attendee I D">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MeetingAttendee" Property="Meeting.MeetingLocation" Title="Meeting">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MeetingAttendee" Property="Member.PhoneNumber" Title="Member">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CDAApp.Server.Models.CdaDB.MeetingAttendee" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="meetingAttendee">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, meetingAttendee)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </RadzenCard>
+    </RadzenColumn>
+        <RadzenColumn SizeMD=6>
+        <RadzenCard style="height: 100%;margin-top:0px;">
+            <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save MeetingAttendee</RadzenAlert>
+            <RadzenTemplateForm TItem="CDAApp.Server.Models.CdaDB.MeetingAttendee" Data="@meetingAttendee" Visible="@(meetingAttendee != null)" Submit="@FormSubmit">
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="E Tag" Component="ETag" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@meetingAttendee.ETag" Name="ETag" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Meeting" Component="Meeting" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenDropDown Data="@meetingsForMeetingID" TextProperty="MeetingLocation" ValueProperty="MeetingID"
+                             Placeholder="Choose Meeting" style="display: block; width: 100%" @bind-Value="@meetingAttendee.MeetingID" Name="MeetingID"
+                             Count=@meetingsForMeetingIDCount LoadData=@meetingsForMeetingIDLoadData />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="3">
+                        <RadzenLabel Text="Member" Component="Member" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="9">
+                        <RadzenDropDown Data="@membersForMemberID" TextProperty="PhoneNumber" ValueProperty="MemberID"
+                             Placeholder="Choose Member" style="display: block; width: 100%" @bind-Value="@meetingAttendee.MemberID" Name="MemberID"
+                             Count=@membersForMemberIDCount LoadData=@membersForMemberIDLoadData />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick" Visible=false />
+                </RadzenStack>
+            </RadzenTemplateForm>
+        </RadzenCard>
+        </RadzenColumn></RadzenRow>
+</RadzenStack>
